@@ -47,6 +47,25 @@
 
         /* Footer */
         footer { margin-top: 80px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; text-align: center;}
+
+	/* Mobile Optimization */
+	@media (max-width: 600px) {
+	    body {
+		padding: 20px 15px; /* Drastically reduce padding (top/bottom, left/right) */
+		font-size: 1rem;    /* Reset font size to standard so it doesn't look huge */
+	    }
+
+	    h1 {
+		font-size: 1.8rem; /* Shrink the title slightly to prevent wrapping */
+		margin-top: 1em;
+	    }
+
+	    /* Make code blocks scroll horizontally instead of breaking the layout */
+	    pre {
+		overflow-x: auto;
+		white-space: pre; /* Force scroll */
+	    }
+	}
     </style>
 </head>
 <body>
