@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karthik.dev</title>
     
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vs.min.css" rel="stylesheet" />
     
     <style>
         /* Base Typography & Layout */
@@ -13,55 +13,60 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #111;
             line-height: 1.6;
-            max-width: 900px; /* The "reading column" width */
+            max-width: 900px;
             margin: 0 auto;
             padding: 40px 40px;
             background-color: #fff;
-	    font-size: 15px;
+            font-size: 15px; /* Your "tad smaller" size */
         }
 
         /* Typography Hierarchy */
         h1, h2, h3 { color: #000; letter-spacing: -0.02em; margin-top: 2em; margin-bottom: 0.5em; }
         h1 { font-size: 2.5rem; font-weight: 800; margin-top: 0; line-height: 1.1; }
         h2 { font-size: 1.75rem; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        p { margin-bottom: 1.5em; font-size: 1.125rem; }
-	p, ul, ol, li {
-          font-size: 1rem; /* equals 15px because of body rule */
-          line-height: 1.6; /* comfortable reading spacing */
-          margin-bottom: 1rem; /* consistent spacing after blocks */
-    	}
+        
+        /* Unified Text Sizing */
+        p, ul, ol, li {
+            font-size: 1rem;      /* Matches body 15px */
+            line-height: 1.6;     
+            margin-bottom: 1rem;  
+        }
         
         /* Links */
         a { color: #000; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
         a:hover { background-color: #000; color: #fff; text-decoration: none; }
 
-        /* Code Blocks */
+        /* CHANGE 2: Code Blocks - Added !important to force the Gemini Grey */
         pre { 
-            background-color: #f6f8fa; /* Light grey background */
+            background-color: #f6f8fa !important; /* Gemini/GitHub Grey */
             border-radius: 6px; 
             margin: 1.5em 0; 
             font-size: 0.9rem;
-            padding: 1rem; /* Adds space inside the box */
-            overflow-x: auto; /* scrollbar if code is too long */
+            padding: 1rem; 
+            overflow-x: auto;
+            border: 1px solid #e1e4e8; /* Subtle border for definition */
         }
 
+        /* Inline Code (Single Backticks) */
         code { 
             font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; 
             font-size: 0.9em; 
-            background-color: #f6f8fa; /* Match the mellow grey */
-            color: #24292e;            /* Dark text, not black */
-            padding: 0.2em 0.4em;      /* Breathing room */
+            background-color: #f6f8fa !important; /* Force Grey */
+            color: #24292e !important;            /* Dark Grey Text */
+            padding: 0.2em 0.4em;      
             border-radius: 4px; 
         }
 
+        /* Reset for Code inside Pre (prevents double background) */
         pre code {
-            background-color: transparent;
-            padding: 0;
-            border-radius: 0;
-            color: inherit;
+            background-color: transparent !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            color: inherit !important;
+            border: none !important;
         }
 
-        /* Navigation (Simple Header) */
+        /* Navigation */
         nav { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 60px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
         nav .logo { font-weight: bold; font-size: 1.2rem; text-decoration: none; border: none; }
         nav ul { list-style: none; display: flex; gap: 20px; padding: 0; margin: 0; }
@@ -75,36 +80,20 @@
         /* Footer */
         footer { margin-top: 80px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; text-align: center;}
 
-	/* Mobile Optimization */
-	@media (max-width: 600px) {
-	    body {
-		padding: 20px 15px; /* Drastically reduce padding (top/bottom, left/right) */
-		font-size: 1rem;    /* Reset font size to standard so it doesn't look huge */
-	    }
-
-	    h1 {
-		font-size: 1.8rem; /* Shrink the title slightly to prevent wrapping */
-		margin-top: 1em;
-	    }
-
-	    /* Make code blocks scroll horizontally instead of breaking the layout */
-	    pre {
-		overflow-x: auto;
-		white-space: pre; /* Force scroll */
-	    }
-	}
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            body { padding: 20px 15px; font-size: 1rem; }
+            h1 { font-size: 1.8rem; margin-top: 1em; }
+            pre { overflow-x: auto; white-space: pre; }
+        }
     </style>
+
     <script>
       window.MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']]
-        },
-        svg: {
-          fontCache: 'global'
-        }
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
       };
     </script>
-    
     <script type="text/javascript" id="MathJax-script" async
       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
@@ -121,8 +110,9 @@
     </nav>
 
     <article>
-	{{ content }}
+        {{ content }}
     </article>
+    
     <footer>
         &copy; 2026 Karthik. Built with raw HTML & CSS.
     </footer>
