@@ -1,0 +1,161 @@
+---
+layout: default
+title: "The Corporate Hierarchy: Mastering Tree Traversals"
+excerpt: "Solving CSES 1674. Why brute force fails on large org charts, choosing the right data representation, and the recursive 'Leap of Faith'."
+---
+
+# The Corporate Hierarchy Problem
+
+*January 9, 2026 • 6 min read*
+
+In systems engineering, we often deal with dependencies. Service A calls Service B, which calls Service C. In the corporate world, it’s an Org Chart.
+
+The problem **[CSES 1674: Subordinates](https://cses.fi/problemset/task/1674)** asks a deceptively simple question: **Given a company structure, calculate how many subordinates each employee has.**
+
+Not just direct reports—*everyone* down the chain.
+
+## The Input
+We are given $N$ employees ($2 \le N \le 200,000$).
+Employee 1 is the General Director (Root).
+For every other employee $i$, we are told who their direct boss is.
+
+```text
+5          (Total employees)
+1 1 2 3    (Bosses for employees 2, 3, 4, 5)
+```
+
+## Step 1: Modeling the Data
+The input gives us the data as a list of parents:
+* Employee 2's boss is 1.
+* Employee 3's boss is 1.
+* Employee 4's boss is 2.
+* Employee 5's boss is 3.
+
+If we store it exactly like this (an array where `parent[i] = boss`), we have a problem. To find out who reports to Employee 1, we have to scan the *entire* array to check who lists "1" as their boss. This is inefficient.
+
+### The Right Structure: Adjacency List
+We need to invert the relationship. Instead of "Who is my boss?", we need to answer "Who is on my team?".
+
+We represent this as a Directed Graph (specifically a Tree) using an **Adjacency List**.
+`adj[Boss] = [Employee A, Employee B, ...]`
+
+For our example:
+* `adj[1] -> [2, 3]`
+* `adj[2] -> [4]`
+* `adj[3] -> [5]`
+* `adj[4] -> []`
+* `adj[5] -> []`
+
+## Step 2: The Brute Force Trap
+The naive instinct is to simulate the counting process for each person individually.
+
+```cpp
+// Pseudocode for Brute Force
+for each employee i from 1 to N:
+    count = 0
+    queue = [all direct reports of i]
+    while queue is not empty:
+        current = queue.pop()
+        count++
+        add current's reports to queue
+    print count
+```
+
+### Why this fails
+Imagine the company is a straight line: `1 -> 2 -> 3 -> ... -> 200,000`.
+* To count for Employee 1, we visit 199,999 people.
+* To count for Employee 2, we visit 199,998 people.
+* ...
+
+This is an Arithmetic Progression. The time complexity is $O(N^2)$.
+With $N = 200,000$, $N^2 = 40,000,000,000$ operations. This will timeout instantly.
+
+## Step 3: The Recursive "Leap of Faith"
+We need an $O(N)$ solution. We need to touch every node exactly once.
+
+Notice a pattern?
+* Employee 2 has 1 subordinate (4).
+* Employee 1 has Employee 2 on their team.
+* Therefore, Employee 1 inherits all of Employee 2's subordinates, plus Employee 2 themselves.
+
+The formula is:
+$$Subordinates(X) = \sum_{child \in Children(X)} (1 + Subordinates(child))$$
+
+This is where the **Recursive Leap of Faith** comes in. When writing the function `solve(child)`, we don't need to know *how* it calculates the answer. We just assume the contract holds: **It will return the correct count.**
+
+### The Algorithm (DFS Post-Order)
+We use a Depth First Search.
+1.  Dive to the bottom of the tree (leaf nodes).
+2.  Leaf nodes return `0`.
+3.  Parents sum up the results of their children as the recursion unwinds.
+
+## The Solution (C++)
+
+Here is the implementation. Note the use of `vector<vector<int>>` for the adjacency list and `vector<int>&` to store results by reference.
+
+```cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// The Recursive Core
+int solve(int n, int emp, const vector<vector<int>>& adj, vector<int>& counts) {
+    int total_subordinates = 0;
+    
+    // Iterate over my direct reports
+    for (int child : adj[emp]) {
+        // The Leap of Faith: 
+        // We trust solve(child) to give us the child's total subtree size.
+        // We add 1 for the child themselves.
+        total_subordinates += 1 + solve(n, child, adj, counts);
+    }
+    
+    // Memoize the result so we can print it later
+    counts[emp] = total_subordinates;
+    return total_subordinates;
+}
+
+int main() {
+    // Fast I/O for N=200,000
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
+    int n;
+    if (cin >> n) {
+        vector<vector<int>> adj(n + 1);
+        vector<int> counts(n + 1, 0);
+        
+        // Parse Bosses
+        for (int i = 2; i <= n; ++i) {
+            int boss;
+            cin >> boss;
+            adj[boss].push_back(i);
+        }
+
+        // Start from the CEO (1)
+        solve(n, 1, adj, counts);
+
+        // Output results
+        for (int i = 1; i <= n; ++i) {
+            cout << counts[i] << " ";
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
+```
+
+## Alternative Approaches?
+Could we do this without recursion?
+
+1.  **Iterative DFS:** We could simulate the recursion stack manually. This is complex to implement because we need to process the node *after* visiting children (Post-order), requiring us to manage state carefully.
+2.  **Topological Sort / Reverse BFS:** Since it's a hierarchy, we could find the "leafs" (nodes with indegree 0 in the reversed graph) and work our way up layer by layer.
+
+However, for Tree problems, simple Recursion is usually the cleanest implementation of the "Divide and Conquer" strategy.
+
+## Key Takeaways
+1.  **Data Structure Choice:** An input list of `Parent -> Child` links is rarely useful. Always convert it to an Adjacency List `Parent -> [Children]` for traversal.
+2.  **Pass by Reference:** In C++, passing a `vector` by value copies the whole array. Always use `&` in recursive functions to avoid TLE.
+3.  **Trust the Recursion:** Don't try to visualize 200,000 stack frames. Define the base case (leaf), define the recurrence relation, and trust the logic.
