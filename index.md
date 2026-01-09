@@ -1,14 +1,18 @@
 ---
 layout: default
-title: Distributed Systems Deep Dive
+title: Home
 ---
 
-# Building Scalable Systems
-*Jan 8, 2026*
+# Karthik's Notes
+Welcome to my personal engineering notebook.
 
-This is a paragraph. I can write code easily now:
-
-```python
-def hello():
-    print("No more HTML tags!")
-```
+## Latest Articles
+<ul>
+  {% for post in site.posts %}
+    <li>
+      <span>{{ post.date | date: "%b %d, %Y" }}</span>
+      &raquo; 
+      <a href="{{ post.url }}">{{ post.title }}</a>
+    </li>
+  {% endfor %}
+</ul>
