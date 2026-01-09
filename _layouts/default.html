@@ -36,8 +36,30 @@
         a:hover { background-color: #000; color: #fff; text-decoration: none; }
 
         /* Code Blocks */
-        pre { border-radius: 6px; margin: 1.5em 0; font-size: 0.9rem }
-        code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 0.9rem; }
+        pre { 
+            background-color: #f6f8fa; /* Light grey background */
+            border-radius: 6px; 
+            margin: 1.5em 0; 
+            font-size: 0.9rem;
+            padding: 1rem; /* Adds space inside the box */
+            overflow-x: auto; /* scrollbar if code is too long */
+        }
+
+        code { 
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; 
+            font-size: 0.9em; 
+            background-color: #f6f8fa; /* Match the mellow grey */
+            color: #24292e;            /* Dark text, not black */
+            padding: 0.2em 0.4em;      /* Breathing room */
+            border-radius: 4px; 
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            color: inherit;
+        }
 
         /* Navigation (Simple Header) */
         nav { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 60px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
