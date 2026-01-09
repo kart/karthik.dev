@@ -2,3 +2,4 @@ title: Karthik.dev
 theme: null
 markdown: kramdown
 permalink: /:title/
+highlighter: none
