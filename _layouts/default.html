@@ -17,7 +17,7 @@
             margin: 0 auto;
             padding: 40px 40px;
             background-color: #fff;
-	    font-size: 1.15rem;
+	    font-size: 15px;
         }
 
         /* Typography Hierarchy */
@@ -25,14 +25,19 @@
         h1 { font-size: 2.5rem; font-weight: 800; margin-top: 0; line-height: 1.1; }
         h2 { font-size: 1.75rem; border-bottom: 2px solid #000; padding-bottom: 10px; }
         p { margin-bottom: 1.5em; font-size: 1.125rem; }
+	p, ul, ol, li {
+          font-size: 1rem; /* equals 15px because of body rule */
+          line-height: 1.6; /* comfortable reading spacing */
+          margin-bottom: 1rem; /* consistent spacing after blocks */
+    	}
         
         /* Links */
         a { color: #000; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
         a:hover { background-color: #000; color: #fff; text-decoration: none; }
 
         /* Code Blocks */
-        pre { border-radius: 6px; margin: 1.5em 0; }
-        code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 0.9em; }
+        pre { border-radius: 6px; margin: 1.5em 0; font-size: 0.9rem }
+        code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 0.9rem; }
 
         /* Navigation (Simple Header) */
         nav { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 60px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
