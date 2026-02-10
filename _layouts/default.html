@@ -14,328 +14,118 @@
     <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet" />
 
     <style>
-        /* --- CSS VARIABLES --- */
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #fafafa;
-            --bg-muted: #f4f4f5;
-            --text-primary: #18181b;
-            --text-secondary: #3f3f46;
-            --text-muted: #71717a;
-            --border-color: #e4e4e7;
-            --accent-color: #2563eb;
-            --accent-hover: #1d4ed8;
-        }
+    /* 1. AGIFLOW THEME: Typography & Core Layout */
+    :root {
+        --text-main: #1a1a1a;
+        --text-muted: #666666;
+        --bg-subtle: #f9f9f9;
+        --border-color: #eeeeee;
+        --link-color: #0066ff; /* Agiflow uses a subtle blue for some links */
+    }
 
-        /* --- GLOBAL RESET --- */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+    body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--text-main);
+        line-height: 1.7; /* Slightly more breathing room for long reads */
+        max-width: 720px;  /* NARROWER: This is the "sweet spot" for readability */
+        margin: 0 auto;
+        padding: 60px 24px;
+        background-color: #fff;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
 
-        html {
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+    /* 2. HEADINGS: Bold and Tight */
+    h1, h2, h3, h4 {
+        color: #000;
+        font-weight: 700;
+        letter-spacing: -0.03em; /* Tighter letter spacing for that premium look */
+        margin-top: 2.5em;
+        margin-bottom: 0.8em;
+        line-height: 1.2;
+    }
 
-        /* --- BODY --- */
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: var(--text-secondary);
-            line-height: 1.75;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 48px 32px;
-            background-color: var(--bg-primary);
-            font-size: 16px;
-            font-weight: 400;
-        }
+    h1 { font-size: 2.75rem; margin-top: 0; }
+    h2 { font-size: 1.8rem; border: none; } /* Removed the heavy underline */
+    h3 { font-size: 1.4rem; }
 
-        /* --- TYPOGRAPHY --- */
-        h1, h2, h3, h4 {
-            color: var(--text-primary);
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            line-height: 1.3;
-        }
+    /* 3. LINKS & NAV: Minimalist */
+    a { 
+        color: inherit; 
+        text-decoration: underline; 
+        text-decoration-thickness: 1px; 
+        text-underline-offset: 3px; 
+        transition: color 0.2s ease;
+    }
+    
+    a:hover { color: var(--link-color); }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-        }
+    nav { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 80px; 
+    }
 
-        h2 {
-            font-size: 1.5rem;
-            margin-top: 3rem;
-            margin-bottom: 1rem;
-        }
+    nav .logo { 
+        font-weight: 700; 
+        font-size: 1rem; 
+        text-decoration: none; 
+        letter-spacing: -0.02em; 
+    }
 
-        h3 {
-            font-size: 1.25rem;
-            margin-top: 2rem;
-            margin-bottom: 0.75rem;
-        }
+    nav ul { list-style: none; display: flex; gap: 24px; padding: 0; margin: 0; }
+    nav ul li a { 
+        font-size: 0.9rem; 
+        color: var(--text-muted); 
+        text-decoration: none; 
+        font-weight: 500;
+    }
 
-        p {
-            margin-bottom: 1rem;
-            line-height: 1.75;
-        }
+    nav ul li a:hover { color: #000; }
 
-        ul, ol {
-            margin-bottom: 1rem;
-            padding-left: 1.5rem;
-        }
+    /* 4. CODE BLOCKS: Submerged Look */
+    pre[class*="language-"] {
+        background-color: var(--bg-subtle) !important;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 2em 0;
+        font-size: 0.85rem;
+    }
 
-        li {
-            margin-bottom: 0.5rem;
-            line-height: 1.75;
-        }
+    :not(pre) > code {
+        background-color: var(--bg-subtle);
+        color: #d12d61; /* Subtle "code red" seen in many technical blogs */
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-size: 0.9em;
+        font-family: "SFMono-Regular", Consolas, monospace;
+    }
 
-        strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
+    /* 5. METADATA (Dates, Tags) */
+    .post-meta {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        display: block;
+    }
 
-        /* --- LINKS --- */
-        a {
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: color 0.15s ease;
-        }
+    footer {
+        margin-top: 100px;
+        padding-top: 40px;
+        border-top: 1px solid var(--border-color);
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-align: left; /* Aligned left for that modern feel */
+    }
 
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* --- CODE BLOCKS --- */
-        pre, pre[class*="language-"] {
-            background-color: var(--bg-muted) !important;
-            border-radius: 8px;
-            border: none;
-            margin: 1.5rem 0;
-            padding: 1rem 1.25rem;
-            font-size: 0.875rem;
-            overflow-x: auto;
-            line-height: 1.6;
-        }
-
-        pre code, pre[class*="language-"] code {
-            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
-            font-size: 0.875rem;
-            background: none !important;
-            padding: 0 !important;
-        }
-
-        /* Inline Code */
-        :not(pre) > code {
-            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
-            font-size: 0.85em;
-            background-color: var(--bg-muted);
-            color: var(--text-primary);
-            padding: 0.15em 0.4em;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-
-        /* --- TABLES --- */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            font-size: 0.875rem;
-            display: block;
-            overflow-x: auto;
-        }
-
-        thead {
-            background-color: var(--bg-muted);
-        }
-
-        th {
-            text-align: left;
-            padding: 0.75rem 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-        }
-
-        tbody tr:hover {
-            background-color: var(--bg-secondary);
-        }
-
-        /* --- BLOCKQUOTES --- */
-        blockquote {
-            border-left: 3px solid var(--border-color);
-            margin: 1.5rem 0;
-            padding: 0 0 0 1.25rem;
-            color: var(--text-muted);
-        }
-
-        blockquote p {
-            margin-bottom: 0;
-        }
-
-        /* --- NAVIGATION --- */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        nav .logo {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--text-primary);
-            text-decoration: none;
-        }
-
-        nav .logo:hover {
-            color: var(--text-primary);
-            text-decoration: none;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 2rem;
-            padding: 0;
-            margin: 0;
-        }
-
-        nav ul li a {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.15s ease;
-        }
-
-        nav ul li a:hover {
-            color: var(--text-primary);
-        }
-
-        /* --- ARTICLE META --- */
-        .meta {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            background-color: var(--bg-secondary);
-            color: var(--text-secondary);
-            padding: 0.25rem 0.625rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid var(--border-color);
-        }
-
-        /* --- IMAGES --- */
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            display: block;
-            margin: 2rem auto;
-        }
-
-        .caption {
-            text-align: center;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-top: -1rem;
-            margin-bottom: 2rem;
-        }
-
-        /* --- HORIZONTAL RULES --- */
-        hr {
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 2.5rem 0;
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            margin-top: 5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 0.875rem;
-        }
-
-        /* --- RESPONSIVE --- */
-        @media (max-width: 640px) {
-            body {
-                padding: 24px 16px;
-                font-size: 15px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            h2 {
-                font-size: 1.25rem;
-                margin-top: 2rem;
-            }
-
-            h3 {
-                font-size: 1.1rem;
-            }
-
-            nav {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-                margin-bottom: 2.5rem;
-            }
-
-            nav ul {
-                gap: 1.5rem;
-            }
-
-            pre, pre[class*="language-"] {
-                padding: 0.875rem 1rem;
-                font-size: 0.8rem;
-                margin: 1rem -16px;
-                border-radius: 0;
-            }
-
-            table {
-                font-size: 0.8rem;
-            }
-
-            th, td {
-                padding: 0.5rem 0.75rem;
-            }
-        }
-
-        /* --- SELECTION --- */
-        ::selection {
-            background-color: #dbeafe;
-            color: var(--text-primary);
-        }
-    </style>
+    /* Mobile */
+    @media (max-width: 600px) {
+        body { padding: 40px 20px; }
+        h1 { font-size: 2.2rem; }
+    }
+</style>
 
     <script>
       window.MathJax = {
@@ -359,7 +149,16 @@
     </nav>
 
     <article>
-        {{ content }}
+        <header>
+        <h1>{{ page.title }}</h1>
+        {% if page.date %}
+            <span class="post-meta">
+                {{ page.date | date: "%B %d, %Y" }} • 5 min read
+            </span>
+        {% endif %}
+    </header>
+
+    {{ content }}
     </article>
 
     <footer>
