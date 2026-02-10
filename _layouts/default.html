@@ -1,130 +1,157 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karthik.dev</title>
 
-    <!-- Prism Dark Theme -->
-    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Prism for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet" />
 
     <style>
         /* --- CSS VARIABLES --- */
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #171717;
-            --bg-muted: #262626;
-            --text-primary: #fafafa;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border-color: #262626;
-            --accent-color: #3b82f6;
-            --accent-hover: #60a5fa;
+            --bg-primary: #ffffff;
+            --bg-secondary: #fafafa;
+            --bg-muted: #f4f4f5;
+            --text-primary: #18181b;
+            --text-secondary: #3f3f46;
+            --text-muted: #71717a;
+            --border-color: #e4e4e7;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
         }
 
-        /* --- GLOBAL LAYOUT --- */
-        * { box-sizing: border-box; }
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
 
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
+        /* --- BODY --- */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: var(--text-primary);
-            line-height: 1.7;
-            max-width: 900px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 40px 40px;
+            padding: 48px 32px;
             background-color: var(--bg-primary);
             font-size: 16px;
+            font-weight: 400;
         }
 
         /* --- TYPOGRAPHY --- */
         h1, h2, h3, h4 {
             color: var(--text-primary);
-            letter-spacing: -0.02em;
-            margin-top: 2.5em;
-            margin-bottom: 0.75em;
             font-weight: 700;
+            letter-spacing: -0.025em;
+            line-height: 1.3;
         }
+
         h1 {
-            font-size: 2.25rem;
+            font-size: 2rem;
             font-weight: 800;
             margin-top: 0;
+            margin-bottom: 1.5rem;
             line-height: 1.2;
-            background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
+
         h2 {
             font-size: 1.5rem;
-            padding-bottom: 0.5em;
-            border-bottom: 1px solid var(--border-color);
-        }
-        h3 { font-size: 1.25rem; }
-
-        p, ul, ol {
-            font-size: 1rem;
-            line-height: 1.7;
-            margin-bottom: 1.25rem;
-            color: var(--text-secondary);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
         }
 
-        li { margin-bottom: 0.5rem; }
+        h3 {
+            font-size: 1.25rem;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
 
-        strong { color: var(--text-primary); font-weight: 600; }
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
 
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.75;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* --- LINKS --- */
         a {
             color: var(--accent-color);
             text-decoration: none;
-            transition: color 0.2s ease;
+            transition: color 0.15s ease;
         }
+
         a:hover {
-            color: var(--accent-hover);
             text-decoration: underline;
         }
 
-        /* --- CODE STYLING --- */
-
-        /* Code Blocks */
+        /* --- CODE BLOCKS --- */
         pre, pre[class*="language-"] {
-            background-color: var(--bg-secondary) !important;
+            background-color: var(--bg-muted) !important;
             border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin: 1.5em 0;
-            padding: 1.25rem;
+            border: none;
+            margin: 1.5rem 0;
+            padding: 1rem 1.25rem;
             font-size: 0.875rem;
             overflow-x: auto;
+            line-height: 1.6;
         }
 
         pre code, pre[class*="language-"] code {
-            font-family: "SF Mono", "Fira Code", Consolas, monospace;
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
             font-size: 0.875rem;
-            line-height: 1.6;
+            background: none !important;
+            padding: 0 !important;
         }
 
         /* Inline Code */
         :not(pre) > code {
-            font-family: "SF Mono", "Fira Code", Consolas, monospace;
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
             font-size: 0.85em;
             background-color: var(--bg-muted);
             color: var(--text-primary);
-            padding: 0.2em 0.4em;
+            padding: 0.15em 0.4em;
             border-radius: 4px;
+            font-weight: 500;
         }
 
         /* --- TABLES --- */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1.5em 0;
-            font-size: 0.9rem;
-            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-size: 0.875rem;
             display: block;
+            overflow-x: auto;
         }
 
         thead {
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-muted);
         }
 
         th {
@@ -133,6 +160,7 @@
             font-weight: 600;
             color: var(--text-primary);
             border: 1px solid var(--border-color);
+            white-space: nowrap;
         }
 
         td {
@@ -141,17 +169,20 @@
             color: var(--text-secondary);
         }
 
-        tr:hover {
+        tbody tr:hover {
             background-color: var(--bg-secondary);
         }
 
         /* --- BLOCKQUOTES --- */
         blockquote {
-            border-left: 3px solid var(--accent-color);
-            margin: 1.5em 0;
-            padding: 0.5em 0 0.5em 1.5em;
-            color: var(--text-secondary);
-            font-style: italic;
+            border-left: 3px solid var(--border-color);
+            margin: 1.5rem 0;
+            padding: 0 0 0 1.25rem;
+            color: var(--text-muted);
+        }
+
+        blockquote p {
+            margin-bottom: 0;
         }
 
         /* --- NAVIGATION --- */
@@ -159,36 +190,41 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 60px;
-            padding-bottom: 20px;
+            margin-bottom: 4rem;
+            padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-color);
         }
+
         nav .logo {
-            font-weight: 700;
-            font-size: 1.1rem;
+            font-weight: 600;
+            font-size: 1rem;
             color: var(--text-primary);
             text-decoration: none;
         }
+
         nav .logo:hover {
             color: var(--text-primary);
             text-decoration: none;
         }
+
         nav ul {
             list-style: none;
             display: flex;
-            gap: 24px;
+            gap: 2rem;
             padding: 0;
             margin: 0;
         }
+
         nav ul li a {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
+            font-weight: 500;
             color: var(--text-muted);
             text-decoration: none;
-            transition: color 0.2s ease;
+            transition: color 0.15s ease;
         }
+
         nav ul li a:hover {
             color: var(--text-primary);
-            text-decoration: none;
         }
 
         /* --- ARTICLE META --- */
@@ -196,20 +232,22 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
             margin-bottom: 1.5rem;
             font-size: 0.875rem;
             color: var(--text-muted);
         }
 
         .tag {
-            display: inline-block;
-            background-color: var(--bg-muted);
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--bg-secondary);
             color: var(--text-secondary);
-            padding: 0.25em 0.75em;
+            padding: 0.25rem 0.625rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
+            border: 1px solid var(--border-color);
         }
 
         /* --- IMAGES --- */
@@ -218,54 +256,83 @@
             height: auto;
             border-radius: 8px;
             display: block;
-            margin: 2em auto;
+            margin: 2rem auto;
         }
+
         .caption {
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             color: var(--text-muted);
-            margin-top: -1.5em;
-            margin-bottom: 2em;
+            margin-top: -1rem;
+            margin-bottom: 2rem;
         }
 
         /* --- HORIZONTAL RULES --- */
         hr {
             border: none;
             border-top: 1px solid var(--border-color);
-            margin: 3em 0;
+            margin: 2.5rem 0;
         }
 
         /* --- FOOTER --- */
         footer {
-            margin-top: 80px;
-            padding-top: 20px;
+            margin-top: 5rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
             color: var(--text-muted);
-            font-size: 0.85rem;
-            text-align: center;
+            font-size: 0.875rem;
         }
 
         /* --- RESPONSIVE --- */
-        @media (max-width: 600px) {
+        @media (max-width: 640px) {
             body {
-                padding: 20px 16px;
+                padding: 24px 16px;
                 font-size: 15px;
             }
-            h1 { font-size: 1.75rem; }
-            h2 { font-size: 1.25rem; }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+                margin-top: 2rem;
+            }
+
+            h3 {
+                font-size: 1.1rem;
+            }
+
             nav {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
+                margin-bottom: 2.5rem;
             }
-            nav ul { gap: 16px; }
-            table { font-size: 0.8rem; }
-            th, td { padding: 0.5rem; }
+
+            nav ul {
+                gap: 1.5rem;
+            }
+
+            pre, pre[class*="language-"] {
+                padding: 0.875rem 1rem;
+                font-size: 0.8rem;
+                margin: 1rem -16px;
+                border-radius: 0;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.5rem 0.75rem;
+            }
         }
 
         /* --- SELECTION --- */
         ::selection {
-            background-color: var(--accent-color);
+            background-color: #dbeafe;
             color: var(--text-primary);
         }
     </style>
