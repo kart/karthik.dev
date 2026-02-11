@@ -11,6 +11,9 @@ new_html = """<!DOCTYPE html>
     
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css">
 
     <style>
         :root {
@@ -19,6 +22,7 @@ new_html = """<!DOCTYPE html>
             --accent: #059669;
             --border: #f3f4f6;
             --bg-subtle: #f9fafb;
+            --code-bg: #f6f8fa;
         }
 
         body {
@@ -31,9 +35,8 @@ new_html = """<!DOCTYPE html>
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 1. LAYOUT: Expanded Horizontal Real Estate */
         .site-container {
-            max-width: 1280px; /* Increased from 1100px */
+            max-width: 1280px;
             margin: 0 auto;
             padding: 40px 40px;
         }
@@ -56,138 +59,65 @@ new_html = """<!DOCTYPE html>
 
         .grid-layout {
             display: grid;
-            grid-template-columns: 1fr 260px; /* Wider sidebar area */
-            gap: 100px; /* More breathing room between text and TOC */
+            grid-template-columns: 1fr 260px;
+            gap: 100px;
             align-items: start;
         }
 
-        /* 2. TYPOGRAPHY: Scaled Down for Precision */
-        article {
-            max-width: 840px; /* Increased from 720px for more horizontal real estate */
-        }
+        article { max-width: 840px; }
 
-        .category-tag {
-            background: var(--accent);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 99px;
-            font-size: 0.65rem; /* Slightly smaller */
-            font-weight: 700;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
+        /* HOME FEED STYLES */
+        .post-card { margin-bottom: 64px; padding-bottom: 64px; border-bottom: 1px solid var(--border); }
+        .post-card:last-child { border-bottom: none; }
+        .post-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .category-tag { background: var(--accent); color: white; padding: 4px 12px; border-radius: 99px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+        .feed-title { font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; margin: 0 0 12px 0; transition: color 0.2s; }
+        .post-title-link { text-decoration: none; color: inherit; }
+        .post-title-link:hover .feed-title { color: var(--accent); }
 
-        h1 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 2.1rem; /* Scaled down from 2.5rem */
-            font-weight: 700;
-            line-height: 1.25;
-            margin: 0 0 12px 0;
-            letter-spacing: -0.03em;
-            color: #111;
-        }
+        /* ARTICLE STYLES */
+        h1 { font-family: 'JetBrains Mono', monospace; font-size: 2.1rem; font-weight: 700; line-height: 1.25; margin: 0 0 12px 0; letter-spacing: -0.03em; }
+        h2 { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; margin: 2.5em 0 1em 0; scroll-margin-top: 40px; }
+        p { margin-bottom: 1.5em; font-size: 1.05rem; }
 
-        .post-meta {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 40px;
-            display: block;
-        }
-
-        h2 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.4rem; /* Scaled down from 1.6rem */
-            font-weight: 700;
-            margin: 2.5em 0 1em 0;
-            color: #111;
-            scroll-margin-top: 40px;
-        }
-
-        p {
-            margin-bottom: 1.5em;
-            font-size: 1.05rem; /* Slightly tighter body text */
-        }
-
-        /* Image Styling */
-        article img {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin: 2.5rem 0;
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* 3. SIDEBAR: Sticky TOC */
-        .sidebar {
-            position: sticky;
-            top: 40px;
-            border-left: 1px solid var(--border);
-            padding-left: 24px;
-        }
-
-        .sidebar-title {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
-            margin-bottom: 20px;
-        }
-
-        #toc {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #toc li {
-            margin-bottom: 10px;
-        }
-
-        #toc a {
-            text-decoration: none;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-            display: block;
-        }
-
-        #toc a:hover {
-            color: #000;
-        }
-
-        #toc a.active {
-            color: var(--accent);
-            font-weight: 600;
-            transform: translateX(4px);
-        }
-
-        /* 4. CODE */
-        pre {
-            background: var(--bg-subtle) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: 8px;
-            padding: 24px !important;
+        /* CODE BLOCK STYLING - High Fidelity Refinement */
+        pre[class*="language-"] {
+            background: var(--code-bg) !important;
+            border: 1px solid #d0d7de !important;
+            border-radius: 8px !important;
+            padding: 20px !important;
             margin: 2em 0 !important;
-            overflow-x: auto;
+            font-size: 0.9rem !important;
+            line-height: 1.5 !important;
         }
 
-        code {
-            font-family: 'JetBrains Mono', monospace;
+        code[class*="language-"], pre[class*="language-"] {
+            font-family: 'JetBrains Mono', monospace !important;
+            text-shadow: none !important;
+        }
+
+        /* Inline code styling */
+        :not(pre) > code {
+            background-color: #f1f3f5;
+            color: #af2f2f;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
             font-size: 0.85em;
+            font-family: 'JetBrains Mono', monospace !important;
         }
 
-        @media (max-width: 1100px) {
-            .grid-layout { grid-template-columns: 1fr; }
-            .sidebar { display: none; }
-        }
+        /* SIDEBAR */
+        .sidebar { position: sticky; top: 40px; border-left: 1px solid var(--border); padding-left: 24px; }
+        .sidebar-title { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 20px; }
+        #toc { list-style: none; padding: 0; margin: 0; }
+        #toc li { margin-bottom: 10px; }
+        #toc a { text-decoration: none; color: var(--text-muted); font-size: 0.85rem; transition: all 0.2s ease; display: block; }
+        #toc a.active { color: var(--accent); font-weight: 600; transform: translateX(4px); }
+
+        @media (max-width: 1100px) { .grid-layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
     </style>
 </head>
 <body>
-
     <div class="site-container">
         <nav class="main-nav">
             <a href="/" class="logo">KARTHIK.DEV</a>
@@ -199,59 +129,67 @@ new_html = """<!DOCTYPE html>
 
         <div class="grid-layout">
             <article id="post-content">
-                <header>
-                    <span class="category-tag">{{ page.category | default: "Engineering" }}</span>
-                    <h1>{{ page.title }}</h1>
-                    <span class="post-meta">
-                        {{ page.date | date: "%B %d, %Y" }} • By Karthik Krishnamurthy
-                    </span>
-                </header>
-
-                {{ content }}
+                {% if page.url == "/" %}
+                    {{ content }}
+                {% else %}
+                    <header>
+                        <span class="category-tag">{{ page.category | default: "Engineering" }}</span>
+                        <h1>{{ page.title }}</h1>
+                        <span class="post-meta">{{ page.date | date: "%B %d, %Y" }} • By Karthik</span>
+                    </header>
+                    {{ content }}
+                {% endif %}
             </article>
 
             <aside class="sidebar">
-                <div class="sidebar-title">On this page</div>
-                <ul id="toc"></ul>
+                <div class="sidebar-title">{% if page.url == "/" %}Latest Thoughts{% else %}On this page{% endif %}</div>
+                <ul id="toc">
+                    {% if page.url == "/" %}
+                        {% for post in site.posts limit:5 %}
+                            <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
             </aside>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const toc = document.getElementById("toc");
-            const headers = Array.from(document.querySelectorAll("#post-content h2"));
+            const isHome = window.location.pathname === "/" || window.location.pathname === "/index.html";
             
-            headers.forEach(h => {
-                const id = h.innerText.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-                h.setAttribute("id", id);
-                const li = document.createElement("li");
-                const a = document.createElement("a");
-                a.href = "#" + id;
-                a.innerText = h.innerText;
-                a.setAttribute("data-id", id);
-                li.appendChild(a);
-                toc.appendChild(li);
-            });
-
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px 0px -80% 0px',
-                threshold: 0
-            };
-
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const id = entry.target.getAttribute("id");
-                        document.querySelectorAll("#toc a").forEach(link => {
-                            link.classList.toggle("active", link.getAttribute("data-id") === id);
-                        });
-                    }
+            if (!isHome) {
+                const headers = Array.from(document.querySelectorAll("#post-content h2"));
+                headers.forEach(h => {
+                    const id = h.innerText.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                    h.setAttribute("id", id);
+                    const li = document.createElement("li");
+                    const a = document.createElement("a");
+                    a.href = "#" + id;
+                    a.innerText = h.innerText;
+                    a.setAttribute("data-id", id);
+                    li.appendChild(a);
+                    toc.appendChild(li);
                 });
-            }, observerOptions);
 
-            headers.forEach(header => observer.observe(header));
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute("id");
+                            document.querySelectorAll("#toc a").forEach(link => {
+                                link.classList.toggle("active", link.getAttribute("data-id") === id);
+                            });
+                        }
+                    });
+                }, { rootMargin: '0px 0px -80% 0px' });
+
+                headers.forEach(header => observer.observe(header));
+            }
         });
     </script>
 </body>
@@ -261,4 +199,4 @@ new_html = """<!DOCTYPE html>
 with open(path, "w") as f:
     f.write(new_html)
 
-print(f"Successfully updated {path} with reduced font sizes and expanded layout.")
+print("Syntax highlighting added and layout updated.")
