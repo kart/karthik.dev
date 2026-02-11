@@ -1,9 +1,7 @@
 import sys
-import re
 
 path = "_layouts/default.html"
 
-# This template perfectly mirrors the Agiflow structure you wanted
 new_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,7 +61,7 @@ new_html = """<!DOCTYPE html>
             align-items: start;
         }
 
-        /* 2. TYPOGRAPHY: Clean & Technical */
+        /* 2. TYPOGRAPHY & CONTENT */
         article {
             max-width: 720px;
         }
@@ -103,11 +101,23 @@ new_html = """<!DOCTYPE html>
             font-weight: 700;
             margin: 3em 0 1.2em 0;
             color: #111;
+            scroll-margin-top: 40px; /* Prevents sticky header overlap when jumping */
         }
 
         p {
             margin-bottom: 1.6em;
             font-size: 1.1rem;
+        }
+
+        /* Image Styling */
+        article img {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin: 2.5rem 0;
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
 
         /* 3. SIDEBAR: Sticky TOC */
@@ -141,11 +151,19 @@ new_html = """<!DOCTYPE html>
             text-decoration: none;
             color: var(--text-muted);
             font-size: 0.9rem;
-            transition: color 0.2s;
+            transition: all 0.2s ease;
+            display: block;
         }
 
         #toc a:hover {
             color: #000;
+        }
+
+        /* Active Link Highlight */
+        #toc a.active {
+            color: var(--accent);
+            font-weight: 600;
+            transform: translateX(4px);
         }
 
         /* 4. CODE: Documentation Style */
@@ -183,7 +201,7 @@ new_html = """<!DOCTYPE html>
         <div class="grid-layout">
             <article id="post-content">
                 <header>
-                    <span class="category-tag">Systems & AI</span>
+                    <span class="category-tag">{{ page.category | default: "Engineering" }}</span>
                     <h1>{{ page.title }}</h1>
                     <span class="post-meta">
                         {{ page.date | date: "%B %d, %Y" }} • By Karthik Krishnamurthy
@@ -203,7 +221,9 @@ new_html = """<!DOCTYPE html>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const toc = document.getElementById("toc");
-            const headers = document.querySelectorAll("#post-content h2");
+            const headers = Array.from(document.querySelectorAll("#post-content h2"));
+            
+            // 1. Build TOC
             headers.forEach(h => {
                 const id = h.innerText.toLowerCase().replace(/[^a-z0-9]+/g, "-");
                 h.setAttribute("id", id);
@@ -211,9 +231,30 @@ new_html = """<!DOCTYPE html>
                 const a = document.createElement("a");
                 a.href = "#" + id;
                 a.innerText = h.innerText;
+                a.setAttribute("data-id", id);
                 li.appendChild(a);
                 toc.appendChild(li);
             });
+
+            // 2. Intersection Observer for Active Highlighting
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px 0px -80% 0px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute("id");
+                        document.querySelectorAll("#toc a").forEach(link => {
+                            link.classList.toggle("active", link.getAttribute("data-id") === id);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            headers.forEach(header => observer.observe(header));
         });
     </script>
 </body>
@@ -223,4 +264,4 @@ new_html = """<!DOCTYPE html>
 with open(path, "w") as f:
     f.write(new_html)
 
-print(f"Successfully updated {path} with the Agiflow template.")
+print(f"Successfully updated {path} with the Full Agiflow Template + Sidebar Logic.")
