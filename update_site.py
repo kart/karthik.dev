@@ -1,4 +1,10 @@
-<!DOCTYPE html>
+import sys
+import re
+
+path = "_layouts/default.html"
+
+# This template perfectly mirrors the Agiflow structure you wanted
+new_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -212,3 +218,9 @@
     </script>
 </body>
 </html>
+"""
+
+with open(path, "w") as f:
+    f.write(new_html)
+
+print(f"Successfully updated {path} with the Agiflow template.")
