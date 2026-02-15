@@ -1,0 +1,9 @@
+name: pdf-redactor
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pyyaml>=6.0
+  - pip:
+    - pymupdf>=1.23.0
