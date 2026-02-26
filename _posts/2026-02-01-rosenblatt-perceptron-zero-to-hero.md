@@ -1,107 +1,153 @@
 ---
 layout: default
 title: "The Rosenblatt Perceptron: Zero to Hero"
-excerpt: "Reading the 1958 paper with fresh eyes—what problem was Rosenblatt solving, how the probabilistic model works, and how to implement a perceptron from scratch."
+excerpt: "A first‑principles tour of the 1958 paper: the questions Rosenblatt asked, the probabilistic model he proposed, and a full perceptron build from scratch." 
 category: "Machine Learning"
 ---
 
 # The Rosenblatt Perceptron (Zero to Hero)
 
-*February 1, 2026 • 12 min read*
+*February 1, 2026 • 25–30 min read*
 
-If we were in 1958, standing next to a room‑sized computer, what would it mean to build a machine that **recognizes**? Not just calculates—but sees, categorizes, and remembers.
+If we were in 1958, standing next to a room‑sized computer, what would it mean to build a machine that **recognizes**? Not just calculates—but sees, categorizes, and *remembers*.
 
-That is the question Frank Rosenblatt asks in his 1958 Psychological Review paper, **“The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.”** This post is a guided reading of that paper, plus a clean Python implementation to make the ideas concrete.
-
-We’ll do it “Zero to Hero” style: start with the questions, build the intuition, read the claims in the paper, and then code the model.
+That’s the question Frank Rosenblatt tackles in his 1958 Psychological Review paper: **“The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.”** This post is a guided reading—slow, curious, and grounded in first principles—with diagrams and a full Python implementation.
 
 > Paper source: `papers/rosenblatt58.pdf`
 
 ---
 
-## 1) The Opening Question: *What is memory, really?*
+## 0) Prerequisites (The Gentle Ramp)
 
-Rosenblatt starts by asking three fundamental questions:
+You don’t need deep ML to understand this, but a few concepts help. If any of these feel rusty, pause here and skim.
 
-1. **How do organisms sense the physical world?** (sensory detection)
-2. **In what form is information stored?** (memory)
-3. **How does stored information influence recognition and behavior?** (decision)
+**Vectors & Dot Product**
+- A vector is just an ordered list of numbers (e.g., `[x1, x2, x3]`).
+- The dot product `w · x` is “weighted sum”: multiply each input by a weight, then add them up.
 
-The perceptron is his attempt to answer **(2)** and **(3)**. But notice the move: he doesn’t assume a perfect, symbolic “wiring diagram.” Instead, he assumes the brain is partially random and **probabilistic**. That choice is the heart of the paper.
+**Linear Separator**
+- In 2D, a linear separator is a straight line.
+- In 3D, it’s a plane.
+- In higher dimensions, it’s a hyperplane.
 
-> If we don’t know the exact wiring, how do we reason about learning? Rosenblatt’s answer: *model it statistically.*
+**Classification**
+- We assign inputs to categories (e.g., “square” vs “circle”).
 
----
-
-## 2) Five Core Assumptions (from the paper)
-
-The paper states a set of assumptions about how real nervous systems might work. They’re worth reading as a blueprint for the perceptron:
-
-1. **Randomness at birth:** The connections aren’t identical across organisms; initial wiring is largely random.  
-2. **Plasticity:** Connections can change with experience.  
-3. **Similarity forms shared pathways:** Similar stimuli tend to activate overlapping response sets.  
-4. **Reinforcement matters:** Positive/negative reinforcement strengthens or weakens connections.  
-5. **Similarity is *system‑dependent*:** What counts as “similar” depends on the physical organization of the system itself.
-
-Notice how modern this sounds. We still assume stochastic initialization, plasticity, and reinforcement—even if the math has evolved.
+If you’re good with those, you’re ready.
 
 ---
 
-## 3) The Architecture: S‑Units → A‑Units → R‑Units
+## 1) The Big Questions Rosenblatt Asked
 
-Rosenblatt describes a **photo‑perceptron** (a visual perceptron). It has three conceptual layers:
+The paper opens with three questions:
 
-- **S‑Units (Sensory points):** A retina. Each S‑point fires if the corresponding input is present.  
-- **A‑Units (Association units):** These combine inputs from many S‑units. Each A‑unit has a **threshold**: it fires if excitatory minus inhibitory input exceeds that threshold.  
-- **R‑Units (Response units):** These represent the output class (“square” vs “circle,” “A” vs “B,” etc.).
+1. **How does the organism sense the world?**  
+2. **How is information stored (memory)?**  
+3. **How does memory influence recognition and behavior?**  
 
-The A‑units are the bridge: they **associate** sensory patterns with responses. In the paper’s language, they form a *probabilistic switching system*.
+Rosenblatt isn’t trying to build a perfect symbolic brain. He assumes the wiring is partly random, and **uses probability theory instead of symbolic logic** to model learning under uncertainty.
 
-> Ask yourself: why introduce the A‑layer at all? Why not go straight from S to R? Rosenblatt’s answer is robustness—association units help generalize over noisy sensory inputs.
-
----
-
-## 4) What “Learning” Means in the Paper
-
-The perceptron is not a static wiring diagram. Learning is **a change in probability**:
-
-- If a stimulus repeatedly leads to a response **with reinforcement**, the likelihood of that pathway increases.
-- If the reinforcement is negative (or absent), the pathway weakens.
-
-So learning is not just “store a template.” It is **biasing the system** so that certain responses become more probable given certain stimuli.
-
-> That’s the core leap: memory is not a static imprint. It’s a probability distribution over responses.
+That move is the soul of the paper.
 
 ---
 
-## 5) The Modern Math (simplified)
+## 2) The Five Assumptions (Paper → Plain English)
 
-Rosenblatt’s paper is probabilistic, but the most common modern formulation is the **linear perceptron**:
+Rosenblatt lists assumptions about real nervous systems. Let’s translate them directly into modern terms:
 
-We have inputs **x**, weights **w**, and a bias **b**.
+1. **Random wiring at birth:** The initial network is not identical across organisms. (Random initialization.)
+2. **Plasticity:** Connections can change with experience. (Learnable parameters.)
+3. **Similarity creates shared paths:** Similar stimuli activate overlapping internal structure. (Feature reuse.)
+4. **Reinforcement shapes learning:** Positive/negative signals strengthen or weaken current associations. (Supervision or feedback.)
+5. **Similarity is system‑dependent:** What counts as “similar” depends on the system’s own structure. (Inductive bias.)
+
+These are strikingly modern. They’re not just neuroscience assumptions—they’re ML design principles.
+
+---
+
+## 3) Architecture: S‑Units → A‑Units → R‑Units
+
+Rosenblatt’s *photo‑perceptron* is a three‑stage system:
+
+- **S‑Units (Sensory points):** Think “retina.” Each point fires if it sees a stimulus.
+- **A‑Units (Association units):** Combine multiple sensory inputs. Each A‑unit fires if its input exceeds a **threshold**.
+- **R‑Units (Response units):** Output decisions (e.g., “square” vs “circle”).
+
+Here’s a clean schematic (not from the paper, but faithful to its structure):
+
+![Perceptron architecture](/assets/images/perceptron-architecture.png)
+
+Why the middle layer? It lets the system **generalize**: similar stimuli activate overlapping A‑units, which makes their responses “feel” similar to the system.
+
+---
+
+## 4) Learning as Probability, Not Symbolic Logic
+
+The paper frames learning as a **change in probability**, not a fixed rule:
+
+- When a stimulus leads to a response **with reinforcement**, the pathway is strengthened.
+- Without reinforcement, the association weakens.
+
+This is the key idea: memory is not a static imprint. It is a **bias**—a shifting distribution over responses.
+
+> The perceptron does not “store a template.” It reshapes the odds.
+
+---
+
+## 5) The Modern Perceptron Equation (First Principles)
+
+We model a neuron as:
 
 \[
 \hat{y} = \text{sign}(w \cdot x + b)
 \]
 
-And the classic **Perceptron Learning Rule** is:
+Where:
+- **x** is the input vector (features)
+- **w** is the weight vector
+- **b** is the bias
+- **sign** outputs +1 or −1
+
+This is a single decision boundary. The question is: **how do we learn the weights?**
+
+### The Perceptron Learning Rule
+If the prediction is wrong, adjust weights **toward** the correct class:
 
 \[
-w \leftarrow w + \eta (y - \hat{y}) x
+\text{if } y \neq \hat{y}:\quad w \leftarrow w + \eta y x, \quad b \leftarrow b + \eta y
 \]
 
-Where:
-- **y** is the true label (+1 / −1)
-- **\hat{y}** is the prediction
-- **\eta** is the learning rate
+Why this update? Because:
+- If a positive example was misclassified, we *add* it to the weight vector.
+- If a negative example was misclassified, we *subtract* it.
 
-This is the deterministic cousin of Rosenblatt’s probabilistic model, but it captures the same intuition: **reinforce the right connections; weaken the wrong ones.**
+You can view this as a geometric push: the decision boundary rotates to reduce error.
 
 ---
 
-## 6) Implementation in Python (from scratch)
+## 6) A Visual Anchor: Decision Boundary
 
-Let’s implement a perceptron and train it on a simple linearly separable dataset.
+Here’s a perceptron separating two clusters. This is what “learning” looks like geometrically.
+
+![Perceptron decision boundary](/assets/images/perceptron-decision-boundary.png)
+
+Every update nudges the line. Eventually, it lands in a position that separates the classes (if that’s possible).
+
+---
+
+## 7) The Learning Loop (Conceptual Diagram)
+
+This is the full flow of a perceptron update. It’s the smallest learning system you can build.
+
+![Perceptron learning loop](/assets/images/perceptron-learning-loop.svg)
+
+From a systems perspective, this is: **sense → aggregate → decide → reinforce → update**.
+
+---
+
+## 8) Python Implementation (From Scratch)
+
+Let’s implement it cleanly and transparently.
 
 ```python
 import numpy as np
@@ -125,11 +171,14 @@ class Perceptron:
             for xi, yi in zip(X, y):
                 y_hat = self.predict(xi)
                 if yi != y_hat:
-                    # Perceptron update
+                    # Update rule
                     self.w += self.lr * yi * xi
                     self.b += self.lr * yi
+```
 
-# Simple linearly separable dataset
+### Train on a Linearly Separable Dataset
+
+```python
 X = np.array([
     [2, 1],
     [1, 1],
@@ -144,50 +193,68 @@ y = np.array([1, 1, 1, -1, -1, -1])
 model = Perceptron(lr=0.1, epochs=10)
 model.fit(X, y)
 
-# Test
 for xi in X:
     print(xi, "->", model.predict(xi))
 ```
 
-What should you expect? If the data is linearly separable, the perceptron converges. If it isn’t, the weights will keep oscillating.
-
-> Try adding a XOR‑style point and see what happens. Why does it break? That question will lead us to multilayer networks.
+You should see correct classifications for all points.
 
 ---
 
-## 7) What the Paper Got Right (and what it didn’t)
+## 9) Where It Breaks (and Why That’s Important)
 
-**Right:**
-- The probabilistic framing of learning under uncertainty.
-- The idea that similarity emerges from shared internal structure.
-- A workable model for pattern classification.
+Try this small change:
 
-**Limitations (discovered later):**
-- Single‑layer perceptrons cannot model non‑linearly separable problems (e.g., XOR).
-- The model lacks internal representations deep enough for complex perception.
+```python
+# XOR-style points (not linearly separable)
+X = np.array([
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1]
+])
 
-But the **core idea—learning as connection change—survived every revolution** after it.
+y = np.array([1, -1, -1, 1])
+```
+
+No matter how long you train, the perceptron can’t solve it.
+
+This failure is not a bug—it’s the reason neural networks needed **multiple layers**. A single linear boundary can’t split XOR.
+
+That insight is the bridge to backpropagation and deep learning.
 
 ---
 
-## 8) The Zero‑to‑Hero Bridge
+## 10) What the Paper Got Right
 
-Why start here? Because the perceptron is the seed of everything else:
+**Enduring contributions:**
+
+- A probabilistic framing of learning and memory.
+- A clear architecture for sensory → association → response systems.
+- A practical, computable model for recognition and generalization.
+
+The exact math has evolved, but the **conceptual skeleton still holds**.
+
+---
+
+## 11) Zero‑to‑Hero: Why Start Here?
+
+Because everything else grows from this seed.
 
 - **Logistic regression** is a perceptron with probabilities.
 - **Neural networks** are stacked perceptrons.
-- **Transformers** are deep, self‑attention‑augmented perceptron layers.
+- **Transformers** are deep, attention‑augmented perceptrons.
 
-If we can explain *why* a single perceptron fails, we can explain *why* depth helps. That’s the story we’re building.
+If we understand **why a perceptron works** and **why it fails**, we understand why depth exists at all.
 
 ---
 
 ## Next Up
 
-We’ll move from **single‑layer** to **multi‑layer** networks by building a tiny MLP and backpropagating gradients manually. The goal is to make the perceptron’s limitations *felt*, not just memorized.
+We’ll move from one layer to two: the **multi‑layer perceptron**, manual backprop, and a tiny XOR network. The goal is to *feel* the limitation, then learn how the next idea fixes it.
 
-If you want, open the paper and skim the sections on organization and reinforcement. The language is old, but the ideas feel strikingly modern.
+If you want to dig deeper, open `papers/rosenblatt58.pdf` and scan the sections on organization and reinforcement. The language is old, but the ideas are remarkably modern.
 
 ---
 
-*Questions, ideas, or corrections? Send them my way—I’ll keep iterating as we go.*
+*If you want more diagrams, more math, or want a particular section expanded, tell me and I’ll iterate.*
