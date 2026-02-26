@@ -27,8 +27,8 @@ Welcome to my personal engineering notebook.
 ## Machine Learning & AI (Zero to Hero)
 <ul>
   <li>
-    <span>Coming Soon</span>
+    <span>Feb 01, 2026</span>
     &raquo;
-    <a href="#">From Linear Models to Transformers: A Roadmap</a>
+    <a href="/rosenblatt-perceptron-zero-to-hero/">The Rosenblatt Perceptron: Zero to Hero</a>
   </li>
 </ul>
