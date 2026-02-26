@@ -5,10 +5,6 @@ excerpt: "A first‑principles tour of the 1958 paper: the questions Rosenblatt 
 category: "Machine Learning"
 ---
 
-# The Rosenblatt Perceptron (Zero to Hero)
-
-*February 1, 2026 • 25–30 min read*
-
 If we were in 1958, standing next to a room‑sized computer, what would it mean to build a machine that **recognizes**? Not just calculates—but sees, categorizes, and *remembers*.
 
 That’s the question Frank Rosenblatt tackles in his 1958 Psychological Review paper: **“The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.”** This post is a guided reading—slow, curious, and grounded in first principles—with diagrams and a full Python implementation.
