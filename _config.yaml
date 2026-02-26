@@ -2,3 +2,5 @@ title: Karthik.dev
 theme: null
 markdown: kramdown
 permalink: /:title/
+kramdown:
+  math_engine: mathjax
