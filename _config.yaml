@@ -3,4 +3,4 @@ theme: null
 markdown: kramdown
 permalink: /:title/
 kramdown:
-  math_engine: mathjax
+  math_engine: null
