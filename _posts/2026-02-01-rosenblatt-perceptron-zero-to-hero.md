@@ -94,9 +94,9 @@ This is the key idea: memory is not a static imprint. It is a **bias**—a shift
 
 We model a neuron as:
 
-\[
+$$
 \hat{y} = \text{sign}(w \cdot x + b)
-\]
+$$
 
 Where:
 - **x** is the input vector (features)
@@ -109,9 +109,9 @@ This is a single decision boundary. The question is: **how do we learn the weigh
 ### The Perceptron Learning Rule
 If the prediction is wrong, adjust weights **toward** the correct class:
 
-\[
+$$
 \text{if } y \neq \hat{y}:\quad w \leftarrow w + \eta y x, \quad b \leftarrow b + \eta y
-\]
+$$
 
 Why this update? Because:
 - If a positive example was misclassified, we *add* it to the weight vector.
