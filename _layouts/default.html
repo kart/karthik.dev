@@ -95,11 +95,9 @@
         /* Inline code styling */
         :not(pre) > code,
         :not(pre) > code[class*="language-"] {
-            background: #f6f8fa;
+            background: transparent;
             color: #24292f;
-            border: 1px solid #d0d7de;
             padding: 0.15em 0.35em;
-            border-radius: 6px;
             font-size: 0.9em;
             white-space: normal;
             font-family: 'JetBrains Mono', monospace !important;
@@ -165,7 +163,10 @@
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
             },
-            svg: { fontCache: 'global' }
+            svg: {
+                fontCache: 'global',
+                displayAlign: 'left'
+            }
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
