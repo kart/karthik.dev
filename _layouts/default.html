@@ -93,12 +93,15 @@
         }
 
         /* Inline code styling */
-        :not(pre) > code {
-            background-color: #f1f3f5;
-            color: #af2f2f;
-            padding: 0.2em 0.4em;
-            border-radius: 4px;
-            font-size: 0.85em;
+        :not(pre) > code,
+        :not(pre) > code[class*="language-"] {
+            background: #f6f8fa;
+            color: #24292f;
+            border: 1px solid #d0d7de;
+            padding: 0.15em 0.35em;
+            border-radius: 6px;
+            font-size: 0.9em;
+            white-space: normal;
             font-family: 'JetBrains Mono', monospace !important;
         }
 
