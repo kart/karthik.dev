@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="280" viewBox="0 0 900 280">
+  <!-- Header row -->
+  <rect x="10" y="10" width="880" height="40" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" />
+  <text x="70" y="35" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold">Step</text>
+  <text x="170" y="35" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold">Input (x)</text>
+  <text x="280" y="35" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold">Label (y)</text>
+  <text x="400" y="35" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold">w · x + b</text>
+  <text x="520" y="35" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold">Prediction (ŷ)</text>
+  <text x="630" y="35" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold">Correct?</text>
+  <text x="790" y="35" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold">New w, b</text>
+
+  <!-- Row 1: Initial state -->
+  <rect x="10" y="50" width="880" height="45" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+  <text x="70" y="77" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Init</text>
+  <text x="170" y="77" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">—</text>
+  <text x="280" y="77" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">—</text>
+  <text x="400" y="77" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">—</text>
+  <text x="520" y="77" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">—</text>
+  <text x="630" y="77" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">—</text>
+  <text x="790" y="77" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#059669">w=[0, 0], b=0</text>
+
+  <!-- Row 2 -->
+  <rect x="10" y="95" width="880" height="45" fill="#fef3f3" stroke="#d1d5db" stroke-width="1" />
+  <text x="70" y="122" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">1</text>
+  <text x="170" y="122" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">[2, 1]</text>
+  <text x="280" y="122" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#3b82f6">+1</text>
+  <text x="400" y="122" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">0·2 + 0·1 + 0 = 0</text>
+  <text x="520" y="122" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">sign(0) = +1</text>
+  <text x="630" y="122" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#059669">✓ Yes</text>
+  <text x="790" y="122" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#6b7280">(no update)</text>
+
+  <!-- Row 3 -->
+  <rect x="10" y="140" width="880" height="45" fill="#fef3f3" stroke="#d1d5db" stroke-width="1" />
+  <text x="70" y="167" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">2</text>
+  <text x="170" y="167" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">[-1, -1]</text>
+  <text x="280" y="167" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ef4444">-1</text>
+  <text x="400" y="167" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">0·(-1) + 0·(-1) + 0 = 0</text>
+  <text x="520" y="167" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">sign(0) = +1</text>
+  <text x="630" y="167" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ef4444">✗ No</text>
+  <text x="790" y="167" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#059669">w=[0.1, 0.1], b=-0.1</text>
+
+  <!-- Row 4 -->
+  <rect x="10" y="185" width="880" height="45" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+  <text x="70" y="212" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">3</text>
+  <text x="170" y="212" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">[1, 2]</text>
+  <text x="280" y="212" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#3b82f6">+1</text>
+  <text x="400" y="212" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">0.1·1 + 0.1·2 - 0.1 = 0.2</text>
+  <text x="520" y="212" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">sign(0.2) = +1</text>
+  <text x="630" y="212" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#059669">✓ Yes</text>
+  <text x="790" y="212" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#6b7280">(no update)</text>
+
+  <!-- Row 5 -->
+  <rect x="10" y="230" width="880" height="45" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+  <text x="70" y="257" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">4</text>
+  <text x="170" y="257" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">[-2, -1]</text>
+  <text x="280" y="257" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ef4444">-1</text>
+  <text x="400" y="257" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">0.1·(-2) + 0.1·(-1) - 0.1 = -0.4</text>
+  <text x="520" y="257" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">sign(-0.4) = -1</text>
+  <text x="630" y="257" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#059669">✓ Yes</text>
+  <text x="790" y="257" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#6b7280">(no update)</text>
+</svg>

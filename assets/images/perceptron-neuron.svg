@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="300" viewBox="0 0 700 300">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#222" />
+    </marker>
+  </defs>
+
+  <!-- Inputs -->
+  <circle cx="60" cy="80" r="30" fill="none" stroke="#3b82f6" stroke-width="2" />
+  <text x="60" y="85" font-family="Arial, sans-serif" font-size="16" text-anchor="middle">x₁</text>
+
+  <circle cx="60" cy="180" r="30" fill="none" stroke="#3b82f6" stroke-width="2" />
+  <text x="60" y="185" font-family="Arial, sans-serif" font-size="16" text-anchor="middle">x₂</text>
+
+  <circle cx="60" cy="260" r="20" fill="none" stroke="#6b7280" stroke-width="2" />
+  <text x="60" y="265" font-family="Arial, sans-serif" font-size="14" text-anchor="middle">1</text>
+  <text x="60" y="295" font-family="Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle">(bias)</text>
+
+  <!-- Weight labels on lines -->
+  <line x1="90" y1="80" x2="220" y2="140" stroke="#222" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="140" y="95" font-family="Arial, sans-serif" font-size="14" fill="#059669">w₁</text>
+
+  <line x1="90" y1="180" x2="220" y2="150" stroke="#222" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="140" y="185" font-family="Arial, sans-serif" font-size="14" fill="#059669">w₂</text>
+
+  <line x1="80" y1="260" x2="220" y2="165" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="130" y="235" font-family="Arial, sans-serif" font-size="14" fill="#6b7280">b</text>
+
+  <!-- Sum node -->
+  <circle cx="250" cy="150" r="35" fill="none" stroke="#222" stroke-width="2" />
+  <text x="250" y="157" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">Σ</text>
+  <text x="250" y="205" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#6b7280">w·x + b</text>
+
+  <!-- Arrow to activation -->
+  <line x1="285" y1="150" x2="360" y2="150" stroke="#222" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Activation box -->
+  <rect x="370" y="115" width="100" height="70" fill="none" stroke="#222" stroke-width="2" rx="5" />
+  <text x="420" y="145" font-family="Arial, sans-serif" font-size="14" text-anchor="middle">sign(·)</text>
+  <text x="420" y="165" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#6b7280">threshold</text>
+
+  <!-- Arrow to output -->
+  <line x1="470" y1="150" x2="545" y2="150" stroke="#222" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Output -->
+  <circle cx="580" cy="150" r="35" fill="none" stroke="#ef4444" stroke-width="2" />
+  <text x="580" y="157" font-family="Arial, sans-serif" font-size="16" text-anchor="middle">ŷ</text>
+  <text x="580" y="205" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#6b7280">+1 or -1</text>
+
+  <!-- Labels -->
+  <text x="60" y="30" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#3b82f6" font-weight="bold">Inputs</text>
+  <text x="250" y="30" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#222" font-weight="bold">Weighted Sum</text>
+  <text x="420" y="30" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#222" font-weight="bold">Activation</text>
+  <text x="580" y="30" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#ef4444" font-weight="bold">Output</text>
+</svg>

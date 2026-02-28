@@ -1,149 +1,189 @@
 ---
 layout: default
 title: "The Rosenblatt Perceptron: Zero to Hero"
-excerpt: "A first‑principles tour of the 1958 paper: the questions Rosenblatt asked, the probabilistic model he proposed, and a full perceptron build from scratch." 
-category: "Machine Learning"
+excerpt: "A first-principles tour of the 1958 paper that started it all. We build a perceptron from scratch, trace through training step-by-step, and understand why this simple idea launched the field of neural networks."
+category: "Paper Reading"
 ---
 
-If we were in 1958, standing next to a room‑sized computer, what would it mean to build a machine that **recognizes**? Not just calculates—but sees, categorizes, and *remembers*.
+*This is the first post in a series where we read foundational ML papers and make them intuitive. The goal: by the end, you should understand what the paper was really about—not just the math, but the ideas.*
 
-That’s the question Frank Rosenblatt tackles in his 1958 Psychological Review paper: **“The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.”** This post is a guided reading—slow, curious, and grounded in first principles—with diagrams and a full Python implementation.
-
-> Paper source: `papers/rosenblatt58.pdf`
-
----
-
-## 0) Prerequisites (The Gentle Ramp)
-
-You don’t need deep ML to understand this, but a few concepts help. If any of these feel rusty, pause here and skim.
-
-**Vectors & Dot Product**
-- A vector is just an ordered list of numbers (e.g., `[x1, x2, x3]`).
-- The dot product `w · x` is “weighted sum”: multiply each input by a weight, then add them up.
-
-**Linear Separator**
-- In 2D, a linear separator is a straight line.
-- In 3D, it’s a plane.
-- In higher dimensions, it’s a hyperplane.
-
-**Classification**
-- We assign inputs to categories (e.g., “square” vs “circle”).
-
-If you’re good with those, you’re ready.
+> Paper: Frank Rosenblatt, "The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain" (1958)
 
 ---
 
-## 1) The Big Questions Rosenblatt Asked
+## The Problem: Drawing a Line
 
-The paper opens with three questions:
+Forget neural networks for a moment. Here's a simpler question.
 
-1. **How does the organism sense the world?**  
-2. **How is information stored (memory)?**  
-3. **How does memory influence recognition and behavior?**  
+You have a bunch of points on a 2D plane. Some are blue, some are red. Can you draw a straight line that separates them?
 
-Rosenblatt isn’t trying to build a perfect symbolic brain. He assumes the wiring is partly random, and **uses probability theory instead of symbolic logic** to model learning under uncertainty.
+![Two clusters of points](/assets/images/two-clusters.png)
 
-That move is the soul of the paper.
+This is called **linear classification**. The line is a **decision boundary**—everything on one side is "blue," everything on the other side is "red."
 
----
+If someone gives you a new point, you just check which side of the line it falls on. Done.
 
-## 2) The Five Assumptions (Paper → Plain English)
+But here's the hard part: **how do you find the right line?**
 
-Rosenblatt lists assumptions about real nervous systems. Let’s translate them directly into modern terms:
+You could eyeball it. But what if there are thousands of points? What if it's not 2D but 100-dimensional? What if you need a machine to do it automatically?
 
-1. **Random wiring at birth:** The initial network is not identical across organisms. (Random initialization.)
-2. **Plasticity:** Connections can change with experience. (Learnable parameters.)
-3. **Similarity creates shared paths:** Similar stimuli activate overlapping internal structure. (Feature reuse.)
-4. **Reinforcement shapes learning:** Positive/negative signals strengthen or weaken current associations. (Supervision or feedback.)
-5. **Similarity is system‑dependent:** What counts as “similar” depends on the system’s own structure. (Inductive bias.)
-
-These are strikingly modern. They’re not just neuroscience assumptions—they’re ML design principles.
+That's what the perceptron solves.
 
 ---
 
-## 3) Architecture: S‑Units → A‑Units → R‑Units
+## The Perceptron: A Weighted Vote
 
-Rosenblatt’s *photo‑perceptron* is a three‑stage system:
+The perceptron is the simplest possible classifier. It works like this:
 
-- **S‑Units (Sensory points):** Think “retina.” Each point fires if it sees a stimulus.
-- **A‑Units (Association units):** Combine multiple sensory inputs. Each A‑unit fires if its input exceeds a **threshold**.
-- **R‑Units (Response units):** Output decisions (e.g., “square” vs “circle”).
+1. Take the input (e.g., coordinates of a point)
+2. Multiply each input by a **weight**
+3. Add them up (plus a **bias** term)
+4. If the sum is positive, output +1. Otherwise, output -1.
 
-Here’s a clean schematic (not from the paper, but faithful to its structure):
-
-![Perceptron architecture](/assets/images/perceptron-architecture.png)
-
-Why the middle layer? It lets the system **generalize**: similar stimuli activate overlapping A‑units, which makes their responses “feel” similar to the system.
-
----
-
-## 4) Learning as Probability, Not Symbolic Logic
-
-The paper frames learning as a **change in probability**, not a fixed rule:
-
-- When a stimulus leads to a response **with reinforcement**, the pathway is strengthened.
-- Without reinforcement, the association weakens.
-
-This is the key idea: memory is not a static imprint. It is a **bias**—a shifting distribution over responses.
-
-> The perceptron does not “store a template.” It reshapes the odds.
-
----
-
-## 5) The Modern Perceptron Equation (First Principles)
-
-We model a neuron as:
+That's it. Mathematically:
 
 $$
-\hat{y} = \text{sign}(w \cdot x + b)
+\hat{y} = \text{sign}(w_1 x_1 + w_2 x_2 + b)
 $$
 
 Where:
-- **x** is the input vector (features)
-- **w** is the weight vector
-- **b** is the bias
-- **sign** outputs +1 or −1
+- $x_1, x_2$ are the input features
+- $w_1, w_2$ are the weights (learnable)
+- $b$ is the bias (also learnable)
+- $\text{sign}$ returns +1 if the sum is ≥ 0, else -1
 
-This is a single decision boundary. The question is: **how do we learn the weights?**
+Here's what it looks like as a diagram:
 
-### The Perceptron Learning Rule
-If the prediction is wrong, adjust weights **toward** the correct class:
+![Perceptron structure](/assets/images/perceptron-neuron.svg)
+
+### An Analogy: The Judge
+
+Think of it like a judge scoring evidence in a trial.
+
+Each piece of evidence has a weight (how important is it?). The judge adds up all the weighted evidence. If the total exceeds a threshold, the verdict is "guilty." Otherwise, "not guilty."
+
+The perceptron is this judge. The weights encode what matters. The bias is the threshold.
+
+The question is: **who decides the weights?**
+
+---
+
+## Learning: Turning the Knobs
+
+Here's where it gets interesting. The perceptron doesn't need you to specify the weights. It **learns them from examples**.
+
+Imagine an old radio with analog dials. You don't know the exact frequency of the station you want—you just twist the knobs until the static clears and you hear music.
+
+The perceptron works the same way:
+
+1. Start with random weights (or zeros)
+2. Feed in a training example
+3. If the prediction is **wrong**, nudge the weights in the right direction
+4. Repeat until the line separates the classes
+
+The key insight: **you don't need to know the right answer in advance**. You just need feedback on whether you're wrong, and a rule for how to correct yourself.
+
+---
+
+## The Update Rule: Step by Step
+
+The learning rule is simple:
+
+**If the prediction is wrong, update the weights:**
 
 $$
-\text{if } y \neq \hat{y}:\quad w \leftarrow w + \eta y x, \quad b \leftarrow b + \eta y
+w \leftarrow w + \eta \cdot y \cdot x
+$$
+$$
+b \leftarrow b + \eta \cdot y
 $$
 
-Why this update? Because:
-- If a positive example was misclassified, we *add* it to the weight vector.
-- If a negative example was misclassified, we *subtract* it.
+Where:
+- $y$ is the true label (+1 or -1)
+- $\hat{y}$ is the prediction
+- $\eta$ is the learning rate (a small number like 0.1)
+- $x$ is the input
 
-You can view this as a geometric push: the decision boundary rotates to reduce error.
+If $y = \hat{y}$ (correct), do nothing.
 
----
+### Why This Works (Intuition)
 
-## 6) A Visual Anchor: Decision Boundary
+If a positive example ($y = +1$) was misclassified as negative, we *add* the input to the weights. This increases $w \cdot x$ for similar inputs, making them more likely to be classified as positive.
 
-Here’s a perceptron separating two clusters. This is what “learning” looks like geometrically.
+If a negative example ($y = -1$) was misclassified as positive, we *subtract* the input from the weights. This decreases $w \cdot x$ for similar inputs.
 
-![Perceptron decision boundary](/assets/images/perceptron-decision-boundary.png)
-
-Every update nudges the line. Eventually, it lands in a position that separates the classes (if that’s possible).
-
----
-
-## 7) The Learning Loop (Conceptual Diagram)
-
-This is the full flow of a perceptron update. It’s the smallest learning system you can build.
-
-![Perceptron learning loop](/assets/images/perceptron-learning-loop.svg)
-
-From a systems perspective, this is: **sense → aggregate → decide → reinforce → update**.
+Each update pushes the decision boundary in the right direction.
 
 ---
 
-## 8) Python Implementation (From Scratch)
+## Worked Example: Training Step by Step
 
-Let’s implement it cleanly and transparently.
+Let's trace through it with actual numbers. We'll use learning rate $\eta = 0.1$.
+
+**Initial state:** $w = [0, 0]$, $b = 0$
+
+![Training trace](/assets/images/weight-update-trace.svg)
+
+Let's walk through the key steps:
+
+**Step 1:** Input $[2, 1]$, label $+1$
+- Compute: $0 \cdot 2 + 0 \cdot 1 + 0 = 0$
+- Prediction: $\text{sign}(0) = +1$ (we'll say sign(0) = +1)
+- Correct! No update needed.
+
+**Step 2:** Input $[-1, -1]$, label $-1$
+- Compute: $0 \cdot (-1) + 0 \cdot (-1) + 0 = 0$
+- Prediction: $\text{sign}(0) = +1$
+- Wrong! True label is $-1$.
+- Update: $w \leftarrow [0, 0] + 0.1 \cdot (-1) \cdot [-1, -1] = [0.1, 0.1]$
+- Update: $b \leftarrow 0 + 0.1 \cdot (-1) = -0.1$
+
+Now $w = [0.1, 0.1]$, $b = -0.1$.
+
+**Step 3:** Input $[1, 2]$, label $+1$
+- Compute: $0.1 \cdot 1 + 0.1 \cdot 2 - 0.1 = 0.2$
+- Prediction: $\text{sign}(0.2) = +1$
+- Correct! No update.
+
+And so on. After enough passes through the data, the weights converge to values that correctly separate the classes.
+
+---
+
+## The Geometric View: A Moving Line
+
+Here's the beautiful part. The weights $w = [w_1, w_2]$ define a line:
+
+$$
+w_1 x_1 + w_2 x_2 + b = 0
+$$
+
+Every time we update the weights, **the line moves**.
+
+![Decision boundary moving](/assets/images/decision-boundary-steps.png)
+
+The line rotates and shifts with each mistake until it finds a position that separates all the points.
+
+Going back to the radio analogy: each misclassification is feedback that you're not tuned in yet. You keep adjusting until the signal is clear.
+
+---
+
+## The Convergence Theorem
+
+Here's the remarkable part: **if the data is linearly separable, the perceptron will find a separating line. Guaranteed.**
+
+This is Rosenblatt's convergence theorem. The proof isn't important for intuition, but the implication is:
+
+- The knob-turning process doesn't wander forever
+- It converges in a finite number of steps
+- The perceptron will always find a solution (if one exists)
+
+This was a big deal in 1958. A machine that learns from examples and is guaranteed to succeed? That felt like magic.
+
+---
+
+## Python Implementation
+
+Let's implement it. About 25 lines of clean code.
 
 ```python
 import numpy as np
@@ -167,90 +207,101 @@ class Perceptron:
             for xi, yi in zip(X, y):
                 y_hat = self.predict(xi)
                 if yi != y_hat:
-                    # Update rule
                     self.w += self.lr * yi * xi
                     self.b += self.lr * yi
 ```
 
-### Train on a Linearly Separable Dataset
+### Training on Our Example
 
 ```python
 X = np.array([
-    [2, 1],
-    [1, 1],
-    [2, -1],
-    [-2, -1],
-    [-1, -1],
-    [-2, 1]
+    [2, 1], [3, 3], [4, 2],    # Class +1
+    [-1, -1], [-2, -1], [-1, 0] # Class -1
 ])
-
 y = np.array([1, 1, 1, -1, -1, -1])
 
 model = Perceptron(lr=0.1, epochs=10)
 model.fit(X, y)
 
-for xi in X:
-    print(xi, "->", model.predict(xi))
+for xi, yi in zip(X, y):
+    print(f"{xi} -> predicted: {model.predict(xi)}, actual: {yi}")
 ```
 
-You should see correct classifications for all points.
+You should see all predictions matching the true labels.
 
 ---
 
-## 9) Where It Breaks (and Why That’s Important)
+## Where It Breaks: The XOR Problem
 
-Try this small change:
+Now the catch.
 
-```python
-# XOR-style points (not linearly separable)
-X = np.array([
-    [1, 1],
-    [1, -1],
-    [-1, 1],
-    [-1, -1]
-])
+Consider these four points:
 
-y = np.array([1, -1, -1, 1])
-```
+| $x_1$ | $x_2$ | Label |
+|-------|-------|-------|
+| 1     | 1     | +1    |
+| 1     | -1    | -1    |
+| -1    | 1     | -1    |
+| -1    | -1    | +1    |
 
-No matter how long you train, the perceptron can’t solve it.
+This is the XOR function. Can you draw a single line that separates the +1 points from the -1 points?
 
-This failure is not a bug—it’s the reason neural networks needed **multiple layers**. A single linear boundary can’t split XOR.
+![XOR problem](/assets/images/xor-problem.png)
 
-That insight is the bridge to backpropagation and deep learning.
+No matter how you tilt or shift the line, you can't separate them. The classes are interleaved.
 
----
+**The perceptron can only learn linearly separable patterns.** XOR is not linearly separable.
 
-## 10) What the Paper Got Right
-
-**Enduring contributions:**
-
-- A probabilistic framing of learning and memory.
-- A clear architecture for sensory → association → response systems.
-- A practical, computable model for recognition and generalization.
-
-The exact math has evolved, but the **conceptual skeleton still holds**.
+This isn't a bug—it's a fundamental limitation. And understanding this limitation is what eventually led to multi-layer networks (the "deep" in deep learning).
 
 ---
 
-## 11) Zero‑to‑Hero: Why Start Here?
+## What Rosenblatt Actually Proposed
 
-Because everything else grows from this seed.
+Now that you understand the perceptron, let's connect back to the paper.
 
-- **Logistic regression** is a perceptron with probabilities.
-- **Neural networks** are stacked perceptrons.
-- **Transformers** are deep, attention‑augmented perceptrons.
+Rosenblatt wasn't just building a classifier. He was modeling **how brains might learn**.
 
-If we understand **why a perceptron works** and **why it fails**, we understand why depth exists at all.
+His full model had three layers:
+
+- **S-units (Sensory):** Raw input, like pixels on a retina
+- **A-units (Association):** Combine raw inputs into features. A single A-unit might respond to "an edge in this region" or "brightness above threshold"
+- **R-units (Response):** The final decision—what class does this input belong to?
+
+The key insight: **the wiring between S and A units is random**. Rosenblatt didn't hand-engineer features. He let the randomness create a diverse set of feature detectors, then learned which combinations mattered for classification.
+
+This is why the paper was revolutionary:
+- No explicit programming of rules
+- Learning from experience
+- Emergent recognition from simple components
+
+---
+
+## The Paper's Lasting Ideas
+
+Even though the single-layer perceptron has limitations, Rosenblatt's framing introduced ideas that persist today:
+
+**Memory as probability, not templates.**
+The perceptron doesn't store a perfect copy of each training example. It adjusts weights—changing the *probability* that similar inputs will be classified the same way.
+
+**Generalization through shared structure.**
+Similar inputs activate overlapping pathways. If I've learned that "edges in this region" predict cats, I can recognize new cat images with similar edge patterns.
+
+**The perceptron is the atom.**
+Everything else—multi-layer perceptrons, CNNs, transformers—is built from this same primitive: weighted sum + activation. If you understand why the perceptron works and why it fails, you understand the foundation of neural networks.
 
 ---
 
 ## Next Up
 
-We’ll move from one layer to two: the **multi‑layer perceptron**, manual backprop, and a tiny XOR network. The goal is to *feel* the limitation, then learn how the next idea fixes it.
+The perceptron can't solve XOR. So what do we do?
 
-If you want to dig deeper, open `papers/rosenblatt58.pdf` and scan the sections on organization and reinforcement. The language is old, but the ideas are remarkably modern.
+We stack perceptrons. A second layer can compute features that the first layer can't see. This lets us draw curved (or more complex) boundaries.
+
+But now we have a new problem: how do we update the weights in the hidden layer? There's no direct error signal—only the output layer sees the true label.
+
+That's the problem backpropagation solves. And that's what we'll cover next.
 
 ---
 
-*If you want more diagrams, more math, or want a particular section expanded, tell me and I’ll iterate.*
+*If you want more diagrams, a deeper dive into convergence proofs, or other variations (voted perceptron, kernel perceptron), let me know and I'll add them.*
