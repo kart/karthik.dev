@@ -10,7 +10,6 @@ No network calls - runs entirely offline.
 
 import argparse
 import os
-import random
 import re
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -35,22 +34,27 @@ class RedactionStats:
     """Statistics and samples from redaction processing."""
     total_redactions: int = 0
     counts_by_type: dict = field(default_factory=dict)
-    samples: list = field(default_factory=list)
-    sample_rate: float = 0.1  # Keep 1 in 10
+    # matched_texts_by_type: pii_type -> {matched_text: count}
+    matched_texts_by_type: dict = field(default_factory=dict)
 
     def add(self, record: RedactionRecord):
         self.total_redactions += 1
         self.counts_by_type[record.pii_type] = self.counts_by_type.get(record.pii_type, 0) + 1
-        # Sample approximately 1 in 10
-        if random.random() < self.sample_rate:
-            self.samples.append(record)
+        if record.pii_type not in self.matched_texts_by_type:
+            self.matched_texts_by_type[record.pii_type] = {}
+        texts = self.matched_texts_by_type[record.pii_type]
+        texts[record.matched_text] = texts.get(record.matched_text, 0) + 1
 
     def merge(self, other: 'RedactionStats'):
         """Merge stats from another RedactionStats object."""
         self.total_redactions += other.total_redactions
         for pii_type, count in other.counts_by_type.items():
             self.counts_by_type[pii_type] = self.counts_by_type.get(pii_type, 0) + count
-        self.samples.extend(other.samples)
+        for pii_type, texts in other.matched_texts_by_type.items():
+            if pii_type not in self.matched_texts_by_type:
+                self.matched_texts_by_type[pii_type] = {}
+            for text, count in texts.items():
+                self.matched_texts_by_type[pii_type][text] = self.matched_texts_by_type[pii_type].get(text, 0) + count
 
 
 @dataclass
@@ -119,22 +123,52 @@ def load_config(config_path: str, ignore_case: bool = False) -> list[PIIItem]:
     return pii_items
 
 
-def find_pattern_matches(page: fitz.Page, pattern: re.Pattern) -> list[tuple[fitz.Rect, str]]:
+def is_scanned_page(page: fitz.Page, min_chars: int = 10) -> bool:
+    """Check if a page is likely scanned (has images but little/no text)."""
+    text = page.get_text("text").strip()
+    has_images = len(page.get_images()) > 0
+    return has_images and len(text) < min_chars
+
+
+def find_pattern_matches(
+    page: fitz.Page,
+    pattern: re.Pattern,
+    textpage: object = None
+) -> list[tuple[fitz.Rect, str]]:
     """
     Find all regex pattern matches on a page and return their rectangles.
+
+    Uses regex to find matches in the page text, then locates each match
+    on the page. Since PyMuPDF's search_for is case-insensitive, we verify
+    each candidate rectangle's actual text against the regex pattern.
+
+    Args:
+        page: PyMuPDF page object
+        pattern: Compiled regex pattern
+        textpage: Optional TextPage from OCR (for scanned pages)
 
     Returns:
         List of (rectangle, matched_text) tuples
     """
     results = []
-    page_text = page.get_text("text")
+    page_text = page.get_text("text", textpage=textpage)
+    # Get all words with positions for context verification.
+    # Each word: (x0, y0, x1, y1, "word", block_no, line_no, word_no)
+    words = page.get_text("words", textpage=textpage)
 
     # Find all matches of the pattern in the page text
     for match in pattern.finditer(page_text):
         matched_text = match.group()
-        # Search for this exact text in the page to get its rectangle(s)
-        rects = page.search_for(matched_text, flags=fitz.TEXT_PRESERVE_WHITESPACE)
+        # search_for is always case-insensitive, so it may return extra rects.
+        # For each candidate rect, find the overlapping word(s) and verify
+        # the pattern against the full word context so that word boundaries
+        # like \b are evaluated correctly.
+        rects = page.search_for(matched_text, flags=fitz.TEXT_PRESERVE_WHITESPACE, textpage=textpage)
         for rect in rects:
+            overlapping = [w[4] for w in words if fitz.Rect(w[:4]).intersects(rect)]
+            context = " ".join(overlapping) if overlapping else ""
+            if not pattern.search(context):
+                continue
             results.append((rect, matched_text))
 
     return results
@@ -147,7 +181,10 @@ def find_and_redact(
     placeholder: str = '[REDACTED]',
     ignore_case: bool = False,
     verbose: bool = False,
-    filename: str = ''
+    filename: str = '',
+    ocr: bool = False,
+    ocr_dpi: int = 300,
+    ocr_language: str = 'eng'
 ) -> RedactionStats:
     """
     Find and redact all PII occurrences in the document.
@@ -160,6 +197,9 @@ def find_and_redact(
         ignore_case: Whether to ignore case when matching (for literal strings)
         verbose: Print details about what was redacted
         filename: Name of the file being processed (for stats)
+        ocr: Whether to use OCR for scanned pages
+        ocr_dpi: Resolution for OCR rendering
+        ocr_language: Tesseract language code
 
     Returns:
         RedactionStats with counts and samples
@@ -167,10 +207,19 @@ def find_and_redact(
     stats = RedactionStats()
 
     for page_num, page in enumerate(doc):
+        # Determine if this page needs OCR
+        textpage = None
+        if ocr and is_scanned_page(page):
+            if verbose:
+                print(f"  Page {page_num + 1}: Scanned page detected, running OCR (dpi={ocr_dpi})...")
+            textpage = page.get_textpage_ocr(
+                language=ocr_language, dpi=ocr_dpi, full=True
+            )
+
         for pii in pii_list:
             if pii.is_pattern:
                 # Regex pattern matching
-                matches = find_pattern_matches(page, pii.regex)
+                matches = find_pattern_matches(page, pii.regex, textpage=textpage)
                 if not matches:
                     continue
 
@@ -183,7 +232,7 @@ def find_and_redact(
                     stats.add(RedactionRecord(
                         file=filename,
                         page=page_num + 1,
-                        pii_type=f"pattern:{pii.value[:30]}",
+                        pii_type=f"pattern:{pii.value}",
                         matched_text=matched_text
                     ))
                     if mode == 'replace':
@@ -197,23 +246,26 @@ def find_and_redact(
                     else:
                         page.add_redact_annot(rect, fill=(0, 0, 0))
             else:
-                # Literal string matching
-                flags = fitz.TEXT_PRESERVE_WHITESPACE
-                text_instances = page.search_for(pii.value, flags=flags)
+                # Literal string matching with word boundaries
+                literal_pattern = re.compile(
+                    r'\b' + re.escape(pii.value) + r'\b',
+                    re.IGNORECASE if ignore_case else 0
+                )
+                matches = find_pattern_matches(page, literal_pattern, textpage=textpage)
 
-                if not text_instances:
+                if not matches:
                     continue
 
                 if verbose:
-                    print(f"  Page {page_num + 1}: Found {len(text_instances)} instance(s) of '{pii.value}'")
+                    print(f"  Page {page_num + 1}: Found {len(matches)} instance(s) of '{pii.value}'")
 
                 # Add redaction annotations and track stats
-                for rect in text_instances:
+                for rect, matched_text in matches:
                     stats.add(RedactionRecord(
                         file=filename,
                         page=page_num + 1,
-                        pii_type=pii.value[:30],
-                        matched_text=pii.value
+                        pii_type=pii.value,
+                        matched_text=matched_text
                     ))
                     if mode == 'replace':
                         page.add_redact_annot(
@@ -239,7 +291,10 @@ def process_single_pdf(
     mode: str,
     placeholder: str,
     ignore_case: bool,
-    verbose: bool
+    verbose: bool,
+    ocr: bool = False,
+    ocr_dpi: int = 300,
+    ocr_language: str = 'eng'
 ) -> RedactionStats:
     """
     Process a single PDF file and save the redacted version.
@@ -256,7 +311,10 @@ def process_single_pdf(
             placeholder=placeholder,
             ignore_case=ignore_case,
             verbose=verbose,
-            filename=input_path.name
+            filename=input_path.name,
+            ocr=ocr,
+            ocr_dpi=ocr_dpi,
+            ocr_language=ocr_language
         )
         doc.save(output_path)
     finally:
@@ -269,12 +327,13 @@ def process_pdf_worker(args: tuple) -> tuple[str, RedactionStats | None, str | N
     Worker function for parallel processing.
 
     Args:
-        args: Tuple of (input_path, output_path, config_path, mode, placeholder, ignore_case, verbose)
+        args: Tuple of (input_path, output_path, config_path, mode, placeholder,
+              ignore_case, verbose, ocr, ocr_dpi, ocr_language)
 
     Returns:
         Tuple of (filename, RedactionStats, error_message_or_none)
     """
-    input_path, output_path, config_path, mode, placeholder, ignore_case, verbose = args
+    input_path, output_path, config_path, mode, placeholder, ignore_case, verbose, ocr, ocr_dpi, ocr_language = args
 
     try:
         pii_list = load_config(config_path, ignore_case=ignore_case)
@@ -285,7 +344,10 @@ def process_pdf_worker(args: tuple) -> tuple[str, RedactionStats | None, str | N
             mode=mode,
             placeholder=placeholder,
             ignore_case=ignore_case,
-            verbose=verbose
+            verbose=verbose,
+            ocr=ocr,
+            ocr_dpi=ocr_dpi,
+            ocr_language=ocr_language
         )
         return (Path(input_path).name, stats, None)
     except Exception as e:
@@ -367,6 +429,22 @@ Config file format (supports literal strings and regex patterns):
         default=1,
         help='Number of parallel workers for directory mode (default: 1)'
     )
+    parser.add_argument(
+        '--ocr',
+        action='store_true',
+        help='Use OCR for scanned pages (requires Tesseract)'
+    )
+    parser.add_argument(
+        '--ocr-dpi',
+        type=int,
+        default=300,
+        help='Resolution for OCR rendering (default: 300)'
+    )
+    parser.add_argument(
+        '--ocr-language',
+        default='eng',
+        help='Tesseract language code for OCR (default: eng)'
+    )
 
     args = parser.parse_args()
 
@@ -436,7 +514,10 @@ Config file format (supports literal strings and regex patterns):
                     args.mode,
                     args.placeholder,
                     args.ignore_case,
-                    args.verbose
+                    args.verbose,
+                    args.ocr,
+                    args.ocr_dpi,
+                    args.ocr_language
                 )
                 for pdf_path in pdf_files
             ]
@@ -469,7 +550,10 @@ Config file format (supports literal strings and regex patterns):
                         mode=args.mode,
                         placeholder=args.placeholder,
                         ignore_case=args.ignore_case,
-                        verbose=args.verbose
+                        verbose=args.verbose,
+                        ocr=args.ocr,
+                        ocr_dpi=args.ocr_dpi,
+                        ocr_language=args.ocr_language
                     )
                     combined_stats.merge(stats)
                     total_files += 1
@@ -489,19 +573,14 @@ Config file format (supports literal strings and regex patterns):
         if failed_files:
             print(f"Failed files: {', '.join(failed_files)}")
 
-        # Print breakdown by type
+        # Print breakdown by type with matched texts
         if combined_stats.counts_by_type:
             print(f"\nRedactions by type:")
             for pii_type, count in sorted(combined_stats.counts_by_type.items(), key=lambda x: -x[1]):
-                display = pii_type if len(pii_type) <= 40 else pii_type[:37] + "..."
-                print(f"  {display}: {count}")
-
-        # Print sample redactions
-        if combined_stats.samples:
-            print(f"\nSample redactions (~10% sampled, showing up to 20):")
-            for sample in combined_stats.samples[:20]:
-                matched_display = sample.matched_text if len(sample.matched_text) <= 30 else sample.matched_text[:27] + "..."
-                print(f"  [{sample.file}:p{sample.page}] \"{matched_display}\"")
+                print(f"  {pii_type}: {count}")
+                texts = combined_stats.matched_texts_by_type.get(pii_type, {})
+                for text, text_count in sorted(texts.items(), key=lambda x: -x[1]):
+                    print(f"    \"{text}\" x{text_count}")
 
     # Single file mode
     else:
@@ -519,7 +598,10 @@ Config file format (supports literal strings and regex patterns):
                 mode=args.mode,
                 placeholder=args.placeholder,
                 ignore_case=args.ignore_case,
-                verbose=args.verbose
+                verbose=args.verbose,
+                ocr=args.ocr,
+                ocr_dpi=args.ocr_dpi,
+                ocr_language=args.ocr_language
             )
         except Exception as e:
             print(f"Error processing PDF: {e}", file=sys.stderr)
@@ -532,19 +614,14 @@ Config file format (supports literal strings and regex patterns):
         print(f"Total redactions: {stats.total_redactions}")
         print(f"Output saved to: {args.output}")
 
-        # Print breakdown by type
+        # Print breakdown by type with matched texts
         if stats.counts_by_type:
             print(f"\nRedactions by type:")
             for pii_type, count in sorted(stats.counts_by_type.items(), key=lambda x: -x[1]):
-                display = pii_type if len(pii_type) <= 40 else pii_type[:37] + "..."
-                print(f"  {display}: {count}")
-
-        # Print sample redactions
-        if stats.samples:
-            print(f"\nSample redactions (~10% sampled, showing up to 20):")
-            for sample in stats.samples[:20]:
-                matched_display = sample.matched_text if len(sample.matched_text) <= 30 else sample.matched_text[:27] + "..."
-                print(f"  [p{sample.page}] \"{matched_display}\"")
+                print(f"  {pii_type}: {count}")
+                texts = stats.matched_texts_by_type.get(pii_type, {})
+                for text, text_count in sorted(texts.items(), key=lambda x: -x[1]):
+                    print(f"    \"{text}\" x{text_count}")
 
 
 if __name__ == '__main__':
